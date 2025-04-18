@@ -9,7 +9,10 @@
 		"--hostname=ansible-dev-container"
 	],
 	"updateRemoteUserUID": true,
-	"postCreateCommand": "yum install -y sshpass",
+	"postCreateCommand": "bash /workspaces/proxmox-ansible/.devcontainer/postCreateCommand.sh",
+	"containerEnv": {
+		"ANSIBLE_CONFIG": "/workspaces/proxmox-ansible/ansible.cfg"
+	},
 	"customizations": {
 		"vscode": {
 			"settings": {
@@ -31,6 +34,7 @@
 				"ms-python.vscode-pylance",
 				"redhat.ansible",
 				"redhat.vscode-yaml",
+				"samuelcolvin.jinjahtml",
 				"vector-of-bool.gitflow",
 				"yzhang.markdown-all-in-one",
 				"zainchen.json"
