@@ -1,6 +1,6 @@
 all:
+  vars_file: "secrets-test.yml"
   hosts:
-    192.168.1.80:
-      vars_file: host_vars/example.yml
-    192.168.1.83:
-      vars_file: host_vars/example_1.yml
+    192.168.2.81:
+      vars_file: "host_vars/pvehost1-test.yml"
+        
