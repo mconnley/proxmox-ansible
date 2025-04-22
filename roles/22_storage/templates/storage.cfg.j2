@@ -1,0 +1,20 @@
+dir: local
+        path /var/lib/vz
+        content backup,iso,vztmpl
+
+lvmthin: local-lvm
+        thinpool data
+        vgname pve
+        content images,rootdir
+
+nfs: mcnas2-nfs
+        export {{ nfs_export }}
+        path {{ nfs_path }}
+        server {{ nfs_server }}
+        content {{ nfs_content }}
+        prune-backups keep-all=1
+
+iscsi: {{ iscsi_name }}
+        portal {{ iscsi_portal }}
+        target {{ iscsi_target }}
+        content none
