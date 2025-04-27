@@ -1,3 +1,15 @@
+- name: Copy root certificate
+  ansible.builtin.copy:
+    src: "{{ ssl_source_path }}/{{ root_cert_path }}/{{ root_cert_filename }}"
+    dest: "/usr/local/share/ca-certificates/{{ root_cert_filename }}"
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Run certificate update
+  ansible.builtin.command: update-ca-certificates
+  changed_when: false
+
 - name: Copy SSL cert
   ansible.builtin.copy:
     src: "{{ ssl_source_path }}/{{ set_hostname }}/{{ ssl_source_cert_filename }}"
