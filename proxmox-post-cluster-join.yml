@@ -1,0 +1,20 @@
+- name: Prepare proxmox
+  hosts: all
+  gather_facts: true
+  tasks:
+    - name: Configure SSL
+      ansible.builtin.include_role:
+        name: 23_ssl_certs
+
+    - name: Update system
+      ansible.builtin.include_role:
+        name: 99_update_reboot
+
+  handlers:
+    - name: Update GRUB
+      ansible.builtin.command: update-grub
+      changed_when: false
+
+    - name: Proxmox Boot Tool Refresh
+      ansible.builtin.command: proxmox-boot-tool refresh
+      changed_when: false

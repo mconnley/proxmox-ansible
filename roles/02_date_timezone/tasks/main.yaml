@@ -27,3 +27,4 @@
 
 - name: Force synchronize time using chrony
   ansible.builtin.command: bash -c "chronyc -a makestep && sleep 10"
+  changed_when: true

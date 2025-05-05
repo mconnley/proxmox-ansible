@@ -1,0 +1,81 @@
+- name: Update ISCSI replacement_timeout
+  ansible.builtin.lineinfile:
+    path: /etc/iscsi/iscsid.conf
+    regexp: '^replacement_timeout'
+    line: 'node.session.timeo.replacement_timeout = 15'
+
+- name: Get existing ISCSI interfaces
+  ansible.builtin.command: iscsiadm -m iface
+  register: iscsi_interfaces
+  changed_when: false
+
+- name: Add ISCSI Interface 1
+  ansible.builtin.command: iscsiadm -m iface -I {{ iscsi_interface1_name }} --op=new
+  changed_when: false
+  when: "iscsi_interface1_name not in iscsi_interfaces.stdout"
+
+- name: Add ISCSI Interface 2
+  ansible.builtin.command: iscsiadm -m iface -I {{ iscsi_interface2_name }} --op=new
+  changed_when: false
+  when: "iscsi_interface2_name not in iscsi_interfaces.stdout"
+
+- name: Print ISCSI1 MAC
+  ansible.builtin.debug:
+    msg: "ISCSI1 MAC: {{ ansible_facts[iscsi_interface1_name]['macaddress'] }}"
+
+- name: Print ISCSI2 MAC
+  ansible.builtin.debug:
+    msg: "ISCSI2 MAC: {{ ansible_facts[iscsi_interface2_name]['macaddress'] }}"
+
+- name: Add MAC address for ISCSI Interface 1
+  ansible.builtin.command: iscsiadm -m iface -I {{ iscsi_interface1_name }}
+    --op=update -n iface.hwaddress -v {{ ansible_facts[iscsi_interface1_name]['macaddress'] }}
+  changed_when: false
+
+- name: Add IP address for ISCSI Interface 1
+  ansible.builtin.command: iscsiadm -m iface -I {{ iscsi_interface1_name }}
+    --op=update -n iface.ipaddress -v {{ iscsi_interface1_ip }}
+  changed_when: false
+
+- name: Add MAC address for ISCSI Interface 2
+  ansible.builtin.command: iscsiadm -m iface -I {{ iscsi_interface2_name }}
+    --op=update -n iface.hwaddress -v {{ ansible_facts[iscsi_interface2_name]['macaddress'] }}
+  changed_when: false
+
+- name: Add IP address for ISCSI Interface 2
+  ansible.builtin.command: iscsiadm -m iface -I {{ iscsi_interface2_name }} --op=update -n iface.ipaddress -v {{ iscsi_interface2_ip }}
+  changed_when: false
+
+- name: Copy storage.cfg from template
+  ansible.builtin.template:
+    src: storage.cfg.j2
+    dest: /etc/pve/storage.cfg
+    owner: root
+    group: www-data
+    mode: '0640'
+
+- name: Restart ISCSI service
+  ansible.builtin.systemd:
+    name: open-iscsi
+    state: restarted
+
+- name: Copy multipath.conf from template
+  ansible.builtin.template:
+    src: multipath.conf.j2
+    dest: /etc/multipath.conf
+    owner: root
+    group: www-data
+    mode: '0640'
+
+- name: Add multipath wwwid
+  ansible.builtin.command: multipath -a {{ multipath_wwid }}
+  changed_when: false
+
+- name: Restart multipath service
+  ansible.builtin.systemd:
+    name: multipath-tools
+    state: restarted
+
+- name: Add datastore
+  ansible.builtin.command: pvesm add lvm {{ lvm_datastore_name }} --vgname {{ lvm_datastore_name }} --shared true
+  changed_when: false

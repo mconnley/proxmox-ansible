@@ -4,10 +4,12 @@
 .lock
 
 # Sensitive files
-secrets.y*ml
+secrets*.y*ml
+*.enc
 *.key
 *.pem
 inventories/
+host_vars/
 
 # Logs and temporary files
 *.log
@@ -29,5 +31,7 @@ __pycache__/
 Thumbs.db
 
 # IDE-specific files
-.vscode/
+#.vscode/
 .idea/
+
+*.tar.gz
