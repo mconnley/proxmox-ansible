@@ -25,6 +25,15 @@
     state: absent
     purge: true
 
+- name: Stop and disable services
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    state: stopped
+    enabled: false
+  loop: "{{ disable_package_services.split() if disable_package_services | default('') | length > 0 else [] }}"
+  when: disable_package_services | default('') | length > 0
+  register: services_disabled
+
 - name: Perform system update immediately
   ansible.builtin.apt:
     update_cache: true
