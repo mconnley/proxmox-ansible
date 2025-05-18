@@ -2,6 +2,11 @@
   hosts: all
   gather_facts: true
   tasks:
+
+    - name: Configure Certs
+      ansible.builtin.include_role:
+        name: 02a_ssl_certs
+
     - name: Update system
       ansible.builtin.include_role:
         name: 99_update_reboot
