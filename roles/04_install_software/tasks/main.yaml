@@ -25,14 +25,23 @@
     state: absent
     purge: true
 
-- name: Stop and disable services
+- name: Stop and disable services - temporary
   ansible.builtin.systemd:
     name: "{{ item }}"
     state: stopped
     enabled: false
   loop: "{{ temp_disable_services.split() if temp_disable_services | default('') | length > 0 else [] }}"
   when: temp_disable_services | default('') | length > 0
-  register: services_disabled
+  register: services_disabled_temp
+
+- name: Stop and disable services - permanent
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    state: stopped
+    enabled: false
+  loop: "{{ permanent_disable_services.split() if permanent_disable_services | default('') | length > 0 else [] }}"
+  when: permanent_disable_services | default('') | length > 0
+  register: services_disabled_perm
 
 - name: Perform system update immediately
   ansible.builtin.apt:
