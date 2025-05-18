@@ -7,6 +7,10 @@
       ansible.builtin.include_role:
         name: 02a_ssl_certs
 
+    - name: Reenable and start temp disabled services
+      ansible.builtin.include_role:
+        name: 50_reenable_services
+
     - name: Update system
       ansible.builtin.include_role:
         name: 99_update_reboot
