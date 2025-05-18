@@ -3,7 +3,7 @@
     name: >-
       {{
         (['cpufrequtils', 'fio', 'unattended-upgrades', 'locales', 'sudo', 'lockfile-progs']) +
-        (['ipmitool'] if ansible_facts.virtualization_role != 'guest' else []) +
+        (['ipmitool'] if ansible_facts.virtualization_role != 'guest' and ipmitool_enable else []) +
         (['proxmox-secure-boot-support'] if (proxmox_pve_major | int) >= 8 else []) +
         (['intel-microcode'] if 'GenuineIntel' in global_cpu_vendor and (proxmox_pve_major | int) >= 8 else []) +
         (['amd64-microcode'] if 'AuthenticAMD' in global_cpu_vendor and (proxmox_pve_major | int) >= 8 else []) +
@@ -30,8 +30,8 @@
     name: "{{ item }}"
     state: stopped
     enabled: false
-  loop: "{{ disable_package_services.split() if disable_package_services | default('') | length > 0 else [] }}"
-  when: disable_package_services | default('') | length > 0
+  loop: "{{ temp_disable_services.split() if temp_disable_services | default('') | length > 0 else [] }}"
+  when: temp_disable_services | default('') | length > 0
   register: services_disabled
 
 - name: Perform system update immediately
