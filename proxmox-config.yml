@@ -98,6 +98,10 @@
       ansible.builtin.include_role:
         name: 22_storage
 
+    - name: Configure Postfix
+      ansible.builtin.include_role:
+        name: 26_postfix_config
+
     - name: Update system
       ansible.builtin.include_role:
         name: 99_update_reboot

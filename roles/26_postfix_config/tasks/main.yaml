@@ -1,0 +1,6 @@
+- name: Disable IPv6 on Postfix
+  ansible.builtin.lineinfile:
+    path: /etc/postfix/main.cf
+    regexp: '^inet_protocols'
+    line: 'inet_protocols = ipv4'
+    state: present
