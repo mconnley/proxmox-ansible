@@ -22,6 +22,14 @@
   changed_when: false
   when: move_logs_tmpfs and nginx_enable
 
+- name: Check if /var/log/journal is in fstab
+  ansible.builtin.command:
+    cmd: grep -q "^tmpfs /var/log/journal tmpfs" /etc/fstab
+  register: journal_log_in_fstab
+  ignore_errors: true
+  changed_when: false
+  when: move_logs_tmpfs and persist_journal
+
 - name: Create backup of current /var/log
   community.general.archive:
     path: /var/log
@@ -81,6 +89,16 @@
     state: mounted
   when: move_logs_tmpfs and nginx_enable and nginx_log_in_fstab.rc != 0
 
+- name: Mount /var/log/journal as tmpfs
+  ansible.posix.mount:
+    path: /var/log/journal
+    src: tmpfs
+    fstype: tmpfs
+    opts: "size={{ tmpfs_logs_journal_size }},mode=0755,noexec,uid=0,gid=4"
+    state: mounted
+  when: move_logs_tmpfs and persist_journal and journal_log_in_fstab.rc != 0
+
+
 - name: Ensure tmpfs for /var/log is in /etc/fstab
   ansible.builtin.lineinfile:
     path: /etc/fstab
@@ -105,6 +123,14 @@
     state: present
   when: move_logs_tmpfs and nginx_enable
 
+- name: Ensure tmpfs for /var/log/journal is in /etc/fstab
+  ansible.builtin.lineinfile:
+    path: /etc/fstab
+    regexp: "^tmpfs /var/log/journal tmpfs"
+    line: "tmpfs /var/log/journal tmpfs defaults,noexec,uid=0,gid=4,size={{ tmpfs_logs_journal_size }} 0 0"
+    state: present
+  when: move_logs_tmpfs and persist_journal
+
 - name: Restore logs from backup
   ansible.builtin.unarchive:
     src: /tmp/log_backup.tar.gz
@@ -120,3 +146,19 @@
     state: started
   loop: "{{ running_services.stdout_lines }}"
   when: move_logs_tmpfs and var_log_in_fstab.rc != 0
+
+- name: Configure logrotate for nginx
+  ansible.builtin.copy:
+    src: files/nginx
+    dest: /etc/logrotate.d/nginx
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Configure logrotate for pve
+  ansible.builtin.copy:
+    src: files/pve
+    dest: /etc/logrotate.d/pve
+    owner: root
+    group: root
+    mode: '0644'
