@@ -1,0 +1,7 @@
+- name: Set salt minion_id
+  ansible.builtin.copy:
+    content: "{{ set_hostname }}"
+    dest: /etc/salt/minion_id
+    owner: root
+    group: root
+    mode: '0644'

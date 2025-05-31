@@ -48,6 +48,36 @@
         regexp: '^(.*)Ext\.Msg\.show\(\{(.*)$\n^(.*)No valid subscription(.*)$'
         replace: '\1void({\2\n\3No valid subscription\4'
 
+- name: Configure Custom repositories
+  when: add_custom_repos | bool
+  block:
+    - name: Download custom repository key from URL
+      ansible.builtin.get_url:
+        url: "{{ item.key_url }}"
+        dest: "{{ item.file_path }}"
+        mode: '0644'
+      when: item.key_url is defined
+      loop: "{{ custom_repo_keys }}"
+      loop_control:
+        label: "{{ item.file_path }}"
+
+    - name: Write custom repository key content
+      ansible.builtin.copy:
+        content: "{{ item.key_text }}"
+        dest: "{{ item.file_path }}"
+        mode: '0644'
+      when: item.key_text is defined
+      loop: "{{ custom_repo_keys }}"
+      loop_control:
+        label: "{{ item.file_path }}"
+
+    - name: Add Custom repositories
+      ansible.builtin.template:
+        src: custom.sources.list.j2
+        dest: /etc/apt/sources.list.d/custom-sources.list
+        mode: '0644'
+      register: add_custom_repo_result
+
 - name: Disable proxmox subscription popup
   ansible.builtin.replace:
     path: /usr/share/javascript/proxmox-widget-toolkit/proxmoxlib.js
@@ -64,6 +94,7 @@
   when: >
     add_proxmox_repo_result is changed or
     remove_pvetest_repo_result is changed or
+    add_custom_repo_result is changed or
     remove_backports_repo_result is changed
   block:
     - name: Clean APT cache

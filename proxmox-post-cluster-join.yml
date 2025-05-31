@@ -2,9 +2,27 @@
   hosts: all
   gather_facts: true
   tasks:
-    - name: Configure SSL
+
+    - name: Configure Certs
       ansible.builtin.include_role:
-        name: 23_ssl_certs
+        name: 02a_ssl_certs
+
+    - name: Prepare salt
+      ansible.builtin.include_role:
+        name: 45_prepare_salt
+
+    - name: Prepare otelcol
+      ansible.builtin.include_role:
+        name: 47_prepare_otelcol
+
+    - name: Reenable and start temp disabled services
+      ansible.builtin.include_role:
+        name: 50_reenable_services
+
+    - name: Set up Checkmk agent
+      ansible.builtin.include_role:
+        name: checkmk.general.agent
+      when: checkmk_enable | default(false)
 
     - name: Update system
       ansible.builtin.include_role:

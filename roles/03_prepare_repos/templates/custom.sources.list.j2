@@ -1,0 +1,5 @@
+{% if add_custom_repos | bool %}
+{% for repo in custom_repos %}
+{{ repo.deb_string }}
+{% endfor %}
+{% endif %}
