@@ -23,14 +23,14 @@
   when: scaling_governor is defined and ansible_facts.virtualization_role != 'guest'
 
 - name: Add governor configuration to rc.local
-  ansible.builtin.blockinfile:
-    path: /etc/rc.local
-    block: |
+  ansible.builtin.copy:
+    dest: /etc/rc.local
+    content: |
+      #!/bin/bash
       # Set CPU frequency scaling governor
       for cpu in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do
         echo "{{ scaling_governor }}" > $cpu
       done
-    create: true
     mode: '0755'
     owner: root
     group: root
