@@ -1,0 +1,46 @@
+auto lo
+iface lo inet loopback
+
+iface {{ primary_interface_name }} inet manual
+
+auto {{ cluster_interface_name }}
+iface {{ cluster_interface_name }} inet static
+address {{ cluster_interface_cidr }}
+#Cluster
+
+auto {{ iscsi_interface1_name }}
+iface {{ iscsi_interface1_name }} inet static
+address {{ iscsi_interface1_cidr }}
+#ISCSI-A
+
+auto {{ iscsi_interface2_name }}
+iface {{ iscsi_interface2_name}} inet static
+address {{ iscsi_interface2_cidr }}
+#ISCSI-B
+
+auto {{ shared_stg_interface_name }}
+iface {{ shared_stg_interface_name }} inet static
+address {{ shared_stg_interface_cidr }}
+#SHARED-STG-1-NFS
+
+auto {{ bridge_interface_name }}
+iface {{ bridge_interface_name }} inet static
+address {{ bridge_interface_cidr }}
+gateway {{ bridge_interface_gateway }}
+bridge-ports {{ primary_interface_name }}
+bridge-stp off
+bridge-fd 0
+
+auto {{ iscsi_interface3_name }}
+iface {{ iscsi_interface3_name }} inet static
+address {{ iscsi_interface3_cidr }}
+vlan-raw-device {{ shared_stg_interface_name }}
+#ISCSI-C - shared
+
+auto {{ iscsi_interface4_name }}
+iface {{ iscsi_interface4_name }} inet static
+address {{ iscsi_interface4_cidr }}
+vlan-raw-device {{ shared_stg_interface_name }}
+#ISCSI-D - shared
+
+source /etc/network/interfaces.d/*
