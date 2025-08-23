@@ -2,6 +2,8 @@ auto lo
 iface lo inet loopback
 
 iface {{ primary_interface_name }} inet manual
+              post-up /usr/bin/logger -p debug -t ifup "Disabling segmentation offload for {{ primary_interface_name}}" && /sbin/ethtool -K {{ primary_interface_name }} tso off gso off && /usr/bin/logger -p debug -t ifup "Disabled offload for {{ primary_interface_name }}"
+#Primary
 
 auto {{ cluster_interface_name }}
 iface {{ cluster_interface_name }} inet static
