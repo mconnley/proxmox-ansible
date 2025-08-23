@@ -1,0 +1,15 @@
+[Unit]
+Description=Set iscsi interfaces mac addresses
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/ip link set vlan1003 down
+ExecStart=/usr/sbin/ip link set vlan1003 address {{ iscsi_interface3_mac }}
+ExecStart=/usr/sbin/ip link set vlan1003 up
+ExecStart=/usr/sbin/ip link set vlan1004 down
+ExecStart=/usr/sbin/ip link set vlan1004 address {{ iscsi_interface4_mac }}
+ExecStart=/usr/sbin/ip link set vlan1004 up
+
+[Install]
+WantedBy=multi-user.target
