@@ -7,14 +7,22 @@ lvmthin: local-lvm
         vgname pve
         content images,rootdir
 
-nfs: mcnas2-nfs
-        export {{ nfs_export }}
-        path {{ nfs_path }}
-        server {{ nfs_server }}
-        content {{ nfs_content }}
+nfs: {{ nas2_nfs_name }}
+        export {{ nas2_nfs_export }}
+        path {{ nas2_nfs_path }}
+        server {{ nas2_nfs_server }}
+        content {{ nas2_nfs_content }}
         prune-backups keep-all=1
 
-iscsi: {{ iscsi_name }}
-        portal {{ iscsi_portal }}
-        target {{ iscsi_target }}
-        content none
+nfs: {{ backup_nfs_name }}
+        export {{ backup_nfs_export }}
+        path {{ backup_nfs_path }}
+        server {{ backup_nfs_server }}
+        content {{ backup_nfs_content }}
+        prune-backups keep-all=1
+
+lvm: {{ iscsi_nas_volume_name }}
+	vgname {{ iscsi_nas_vgname }}
+	content rootdir,images
+	saferemove 0
+	shared 1
