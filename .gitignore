@@ -11,6 +11,10 @@ secrets*.y*ml
 inventories/
 host_vars/
 
+# Ad-hoc roles and playbooks
+roles/xx_*
+/xx_*.yml
+
 # Logs and temporary files
 *.log
 *.tmp
