@@ -6,6 +6,9 @@
     - /etc/apt/sources.list
     - /etc/apt/sources.list.d/pve-enterprise.list
     - /etc/apt/sources.list.d/ceph.list
+    - /etc/apt/sources.list.d/pve-enterprise.sources
+    - /etc/apt/sources.list.d/ceph.sources
+    - /etc/apt/sources.list.d/debian.sources
 
 - name: Configure APT repositories
   block:
@@ -29,7 +32,7 @@
         path: /etc/apt/sources.list.d/pve-sources.list
         regexp: >-
           ^deb http://deb.debian.org/debian {{ ansible_distribution_release }}-backports main contrib non-free
-          {% if (proxmox_pve_major | int) == 8 %} non-free-firmware{% endif %}
+          {% if (proxmox_pve_major | int) >= 8 %} non-free-firmware{% endif %}
         state: absent
       when: not add_backports_repo | bool
       register: remove_backports_repo_result
@@ -48,6 +51,36 @@
         regexp: '^(.*)Ext\.Msg\.show\(\{(.*)$\n^(.*)No valid subscription(.*)$'
         replace: '\1void({\2\n\3No valid subscription\4'
 
+- name: Configure Custom repositories
+  when: add_custom_repos | bool
+  block:
+    - name: Download custom repository key from URL
+      ansible.builtin.get_url:
+        url: "{{ item.key_url }}"
+        dest: "{{ item.file_path }}"
+        mode: '0644'
+      when: item.key_url is defined
+      loop: "{{ custom_repo_keys }}"
+      loop_control:
+        label: "{{ item.file_path }}"
+
+    - name: Write custom repository key content
+      ansible.builtin.copy:
+        content: "{{ item.key_text }}"
+        dest: "{{ item.file_path }}"
+        mode: '0644'
+      when: item.key_text is defined
+      loop: "{{ custom_repo_keys }}"
+      loop_control:
+        label: "{{ item.file_path }}"
+
+    - name: Add Custom repositories
+      ansible.builtin.template:
+        src: custom.sources.list.j2
+        dest: /etc/apt/sources.list.d/custom-sources.list
+        mode: '0644'
+      register: add_custom_repo_result
+
 - name: Disable proxmox subscription popup
   ansible.builtin.replace:
     path: /usr/share/javascript/proxmox-widget-toolkit/proxmoxlib.js
@@ -64,6 +97,7 @@
   when: >
     add_proxmox_repo_result is changed or
     remove_pvetest_repo_result is changed or
+    add_custom_repo_result is changed or
     remove_backports_repo_result is changed
   block:
     - name: Clean APT cache

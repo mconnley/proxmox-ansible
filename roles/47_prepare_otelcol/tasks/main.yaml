@@ -1,0 +1,13 @@
+- name: Ensure user 'otelcol-contrib' is added to group 'systemd-journal'
+  ansible.builtin.user:
+    name: otelcol-contrib
+    groups: systemd-journal
+    append: true
+
+- name: Add otelcol config
+  ansible.builtin.template:
+    src: config.yaml.j2
+    dest: /etc/otelcol-contrib/config.yaml
+    owner: root
+    group: root
+    mode: '0644'

@@ -1,0 +1,41 @@
+# Ansible-specific files
+*.retry
+*.vault
+.lock
+
+# Sensitive files
+secrets*.y*ml
+*.enc
+*.key
+*.pem
+inventories/
+host_vars/
+
+# Ad-hoc roles and playbooks
+roles/xx_*
+/xx_*.yml
+
+# Logs and temporary files
+*.log
+*.tmp
+*.swp
+*.bak
+*.orig
+
+# Python virtual environment
+venv/
+.env/
+
+# Byte-compiled Python files
+__pycache__/
+*.py[cod]
+
+# System files
+.DS_Store
+Thumbs.db
+
+# IDE-specific files
+#.vscode/
+.idea/
+
+*.tar.gz

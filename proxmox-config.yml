@@ -1,6 +1,6 @@
 - name: Prepare proxmox
   hosts: all
-  gather_facts: false
+  gather_facts: true
   tasks:
     - name: Init
       ansible.builtin.include_role:
@@ -14,6 +14,10 @@
       ansible.builtin.include_role:
         name: 02_date_timezone
 
+    - name: Configure Certs
+      ansible.builtin.include_role:
+        name: 02a_ssl_certs
+
     - name: Prepare repos
       ansible.builtin.include_role:
         name: 03_prepare_repos
@@ -26,7 +30,7 @@
       ansible.builtin.include_role:
         name: 05_init_sshd
 
-    - name: Сonfigure-users
+    - name: Configure-users
       ansible.builtin.include_role:
         name: 06_configure_users
 
@@ -90,9 +94,29 @@
       ansible.builtin.include_role:
         name: 21_logs_tmpfs
 
-    - name: Update system
+    - name: Configure storage
+      ansible.builtin.include_role:
+        name: 22_storage
+
+    - name: Configure Postfix
+      ansible.builtin.include_role:
+        name: 26_postfix_config
+
+    - name: Reboot system
       ansible.builtin.include_role:
         name: 99_update_reboot
+
+    - name: Configure 5G NIC
+      ansible.builtin.include_role:
+        name: 27_configure_5g_nic
+
+    - name: Reboot system
+      ansible.builtin.include_role:
+        name: 99_update_reboot
+
+    - name: Reload interfaces
+      ansible.builtin.include_role:
+        name: 29_reload_interfaces
 
   handlers:
     - name: Update GRUB

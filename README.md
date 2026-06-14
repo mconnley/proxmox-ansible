@@ -176,3 +176,8 @@ The playbook is compatible with **Proxmox VE versions 7 and 8** and has been tes
 - **Performance Optimization**: Enabling nested virtualization, configuring P-State settings, and using RAM disks for logs improve overall system performance.
 
 This playbook is ideal for administrators looking to streamline the deployment and management of Proxmox, minimize errors, and enhance the performance of their virtualization platform.
+
+
+## Usage
+
+ansible-playbook -i inventory.yml proxmox-config.yml -e "@secrets-test.yml" --limit 192.168.99.99

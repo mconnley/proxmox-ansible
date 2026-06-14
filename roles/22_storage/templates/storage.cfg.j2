@@ -1,0 +1,40 @@
+dir: local
+	path /var/lib/vz
+	content vztmpl,iso,backup
+
+cifs: {{ main_nas_name }}
+	path {{ main_nas_path }}
+	server {{ main_nas_server }}
+	share {{ main_nas_share }}
+	content {{ main_nas_content }}
+	prune-backups keep-all=1
+	username {{ main_nas_username }}
+
+cifs: {{ nas2_name }}
+	path {{ nas2_path }}
+	server {{ nas2_server }}
+	share {{ nas2_share }}
+	content {{ nas2_content }}
+	prune-backups keep-all=1
+	username {{ nas2_username }}
+
+cifs: {{ nas2_backup_name }}
+	path {{ nas2_backup_path }}
+	server {{ nas2_backup_server }}
+	share {{ nas2_backup_share }}
+	content {{ nas2_backup_content }}
+	prune-backups keep-all=1
+	username {{ nas2_backup_username }}
+
+cifs: {{ backup_nas_name }}
+	path {{ backup_nas_path }}
+	server {{ backup_nas_server }}
+	share {{ backup_nas_share }}
+	content {{ backup_nas_content }}
+	prune-backups keep-all=1
+	username {{ backup_nas_username }}
+
+rbd: {{ ceph_pool_name }}
+	content rootdir,images
+	krbd 0
+	pool ceph-pool1
