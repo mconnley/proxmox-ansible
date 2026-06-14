@@ -6,14 +6,25 @@
       ansible.builtin.blockinfile:
         path: /etc/modules
         block: |
+          kvmgt
           vfio
           vfio_iommu_type1
           vfio_pci
           vfio_virqfd
+          i915
         owner: root
         group: root
         mode: '0644'
         create: true
+
+    - name: Update i915
+      ansible.builtin.lineinfile:
+        path: /etc/modprobe.d/i915.conf
+        owner: root
+        group: root
+        mode: '0644'
+        create: true
+        line: options i915 enable_guc=3
 
     - name: Update kvm
       ansible.builtin.lineinfile:

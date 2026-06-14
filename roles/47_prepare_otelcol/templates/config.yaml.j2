@@ -61,10 +61,12 @@ processors:
 exporters:
   debug:
     verbosity: detailed
-  otlphttp/lokidirect:
+  otlphttp/lokistandalone:
     auth:
       authenticator: headers_setter
     endpoint: {{ otel_logs_endpoint }}
+  otlphttp/mimir:
+    endpoint: {{ otel_metrics_endpoint }}
 
 service:
 
@@ -75,16 +77,17 @@ service:
 #      processors: [batch]
 #      exporters: [debug]
 
-#    metrics:
-#      receivers: [otlp, opencensus, prometheus]
-#      processors: [batch]
-#      exporters: [debug]
+    metrics:
+      receivers: [otlp, opencensus, prometheus]
+      processors: [batch]
+      exporters:
+      - otlphttp/mimir
 
     logs:
       receivers:
       - journald
       processors: [resource/add_service_name, batch]
       exporters:
-      - otlphttp/lokidirect
+      - otlphttp/lokistandalone
 
   extensions: [health_check, pprof, zpages, headers_setter]

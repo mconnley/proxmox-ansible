@@ -1,0 +1,10 @@
+- name: Join Cluster
+  community.proxmox.proxmox_cluster:
+    state: present
+    api_host: "{{ bridge_interface_cidr | replace('/24', '') }}"
+    api_user: "{{ cluster_join_user }}"
+    master_ip: "{{ cluster_join_addr }}"
+    api_password: "{{ new_root_password }}"
+    link0: "{{ cluster_interface_cidr | replace('/16', '') }}"
+    fingerprint: "{{ cluster_fingerprint }}"
+    cluster_name: "{{ cluster_name }}"

@@ -22,12 +22,17 @@
   when: configure_network | default(false)
 
 - name: Configure /etc/network/interfaces
-  ansible.builtin.copy:
+  ansible.builtin.template:
+    src: interfaces.j2
     dest: /etc/network/interfaces
-    content: "{{ network_config }}"
     mode: '0644'
   when: configure_network | default(false)
   register: interfaces_changed
+
+- name: Reload networking service
+  ansible.builtin.systemd:
+    name: networking
+    state: reloaded
 
 - name: Configure DNS servers
   ansible.builtin.copy:

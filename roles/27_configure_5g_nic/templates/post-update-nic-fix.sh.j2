@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+rm r8152_proxmox_setup.sh -f
+wget https://raw.githubusercontent.com/aioue/r8152_proxmox_setup/refs/heads/main/r8152_proxmox_setup.sh
+chmod +x r8152_proxmox_setup.sh
+./r8152_proxmox_setup.sh --onboard-if=eno1

@@ -1,0 +1,72 @@
+- name: Install Ceph
+  ansible.builtin.expect:
+    command: pveceph install --repository no-subscription
+    responses:
+      This will install Ceph 19.2 Squid - continue \(y/N\)\?: "y"
+      Do you want to continue\? \[Y/n\]: "y"
+    creates: /etc/ceph/ceph.conf
+
+- name: Set NVMe Ceph partition type to Ceph OSD
+  ansible.builtin.command: sgdisk -t {{ ceph_nvme_partition_number }}:f800 {{ ceph_nvme_device }}
+  become: true
+  become_user: root
+  changed_when: false
+
+- name: Update partition table
+  ansible.builtin.command: partprobe
+  become: true
+  become_user: root
+  changed_when: false
+
+- name: Wipe /dev/sda
+  ansible.builtin.command: wipefs -a -f /dev/sda
+  become: true
+  become_user: root
+  changed_when: false
+
+- name: Check if /dev/sda contains Ceph or LVM metadata
+  ansible.builtin.shell: 'set -o pipefail; lsblk -no FSTYPE /dev/sda | grep -q -E "ceph|LVM2_member"'
+  register: sda_needs_zap
+  changed_when: false
+  failed_when: sda_needs_zap.rc > 1
+  args:
+    executable: /bin/bash
+
+- name: Wipe any previous Ceph OSDs from device if present
+  ansible.builtin.command: ceph-volume lvm zap --destroy /dev/sda
+  when: sda_needs_zap.rc == 0
+  changed_when: sda_needs_zap.rc == 0
+
+- name: Pause for Ceph install to stabilize
+  ansible.builtin.pause:
+    seconds: 20
+
+- name: Wait for /etc/pve/ceph.conf to be created
+  ansible.builtin.wait_for:
+    path: /etc/pve/ceph.conf
+
+- name: Create Ceph Monitor
+  ansible.builtin.command: pveceph createmon
+  args:
+    creates: /var/lib/ceph/mon/ceph-{{ inventory_hostname }}
+  when: ceph_role == 'mon' and not first_member == 'yes'
+
+- name: Create Ceph Manager
+  ansible.builtin.command: pveceph createmgr
+  args:
+    creates: /var/lib/ceph/mgr/ceph-{{ inventory_hostname }}
+  when: ceph_role == 'mgr' and not first_member == 'yes'
+
+- name: Pause for Ceph Monitor/Manager to stabilize
+  ansible.builtin.pause:
+    seconds: 20
+
+- name: Create Ceph OSD - NVMe
+  ansible.builtin.command: pveceph osd create {{ ceph_nvme_partition_name }} --crush-device-class nvme
+  args:
+    creates: "/var/lib/ceph/osd/ceph-0"
+
+- name: Create Ceph OSD - SSD
+  ansible.builtin.command: pveceph createosd {{ ceph_ssd_device }} --crush-device-class ssd
+  args:
+    creates: "/var/lib/ceph/osd/ceph-1"

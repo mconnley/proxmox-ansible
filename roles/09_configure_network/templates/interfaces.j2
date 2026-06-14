@@ -1,0 +1,34 @@
+auto lo
+iface lo inet loopback
+
+iface {{ primary_interface_name }} inet manual
+              post-up /usr/bin/logger -p debug -t ifup "Disabling segmentation offload for {{ primary_interface_name}}" && /sbin/ethtool -K {{ primary_interface_name }} tso off gso off && /usr/bin/logger -p debug -t ifup "Disabled offload for {{ primary_interface_name }}"
+#Primary
+
+auto {{ cluster_interface_name }}
+iface {{ cluster_interface_name }} inet static
+address {{ cluster_interface_cidr }}
+#Cluster
+
+auto {{ bridge_interface_name }}
+iface {{ bridge_interface_name }} inet static
+address {{ bridge_interface_cidr }}
+gateway {{ bridge_interface_gateway }}
+bridge-ports {{ primary_interface_name }}
+bridge-stp off
+bridge-fd 0
+#Bridge
+
+auto {{ iscsi_interface1_name }}
+iface {{ iscsi_interface1_name }} inet static
+address {{ iscsi_interface1_ip }}/{{ iscsi_network_prefix }}
+# mtu 9000
+# post-up /usr/bin/logger -p debug -t ifup "Disabling scatter-gather offload for {{ iscsi_interface1_name }}" && /sbin/ethtool -K {{ iscsi_interface1_name }} sg off && /usr/bin/logger -p debug -t ifup "Disabled offload for {{ iscsi_interface1_name }}"
+#5G
+
+auto {{ nfs_interface_name }}
+iface {{ nfs_interface_name }} inet static
+address {{ nfs_interface_cidr }}
+#NFS - shared
+
+source /etc/network/interfaces.d/*

@@ -3,36 +3,36 @@
   gather_facts: true
   tasks:
 
-    - name: Configure Certs
-      ansible.builtin.include_role:
-        name: 02a_ssl_certs
+    # - name: Configure Certs
+    #   ansible.builtin.include_role:
+    #     name: 02a_ssl_certs
 
-    - name: Prepare salt
-      ansible.builtin.include_role:
-        name: 45_prepare_salt
+    # - name: Configure Ceph
+    #   ansible.builtin.include_role:
+    #     name: 51_configure_ceph
 
-    - name: Prepare otelcol
-      ansible.builtin.include_role:
-        name: 47_prepare_otelcol
+    # - name: Prepare salt
+    #   ansible.builtin.include_role:
+    #     name: 45_prepare_salt
 
-    - name: Reenable and start temp disabled services
-      ansible.builtin.include_role:
-        name: 50_reenable_services
+    # - name: Reenable and start temp disabled services
+    #   ansible.builtin.include_role:
+    #     name: 50_reenable_services
 
     - name: Set up Checkmk agent
       ansible.builtin.include_role:
         name: checkmk.general.agent
       when: checkmk_enable | default(false)
 
-    - name: Update system
-      ansible.builtin.include_role:
-        name: 99_update_reboot
+    # - name: Update system
+    #   ansible.builtin.include_role:
+    #     name: 99_update_reboot
 
-  handlers:
-    - name: Update GRUB
-      ansible.builtin.command: update-grub
-      changed_when: false
+  # handlers:
+  #   - name: Update GRUB
+  #     ansible.builtin.command: update-grub
+  #     changed_when: false
 
-    - name: Proxmox Boot Tool Refresh
-      ansible.builtin.command: proxmox-boot-tool refresh
-      changed_when: false
+  #   - name: Proxmox Boot Tool Refresh
+  #     ansible.builtin.command: proxmox-boot-tool refresh
+  #     changed_when: false
