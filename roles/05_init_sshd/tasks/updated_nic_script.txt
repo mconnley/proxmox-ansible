@@ -1,0 +1,20 @@
+rm /etc/apt/sources.list.d/custom-sources.list
+apt update
+apt install git -y
+dkms remove realtek-r8152/2.21.4 --all
+cd /usr/src
+git clone https://github.com/wget/realtek-r8152-linux.git r8152-2.21.4-wget
+cat > /usr/src/r8152-2.21.4-wget/dkms.conf << 'EOF'
+PACKAGE_NAME="r8152"
+PACKAGE_VERSION="2.21.4-wget"
+BUILT_MODULE_NAME[0]="r8152"
+DEST_MODULE_LOCATION[0]="/updates/dkms"
+AUTOINSTALL="YES"
+EOF
+dkms add -m r8152 -v 2.21.4-wget
+apt full-upgrade -y
+apt install proxmox-headers-7.0.6-2-pve -y
+dkms install r8152/2.21.4-wget -k 7.0.6-2-pve
+update-initramfs -u -k 7.0.6-2-pve
+
+#reboot
