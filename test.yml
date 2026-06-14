@@ -1,0 +1,15 @@
+- name: Prepare proxmox
+  hosts: all
+  gather_facts: true
+  tasks:
+    - name: Init
+      ansible.builtin.include_role:
+        name: 00_init
+
+    - name: Configure Ceph
+      ansible.builtin.include_role:
+        name: 51_configure_ceph
+
+    # - name: Update system
+    #   ansible.builtin.include_role:
+    #     name: 99_update_reboot

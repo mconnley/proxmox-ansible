@@ -1,28 +1,40 @@
 dir: local
-        path /var/lib/vz
-        content backup,iso,vztmpl
+	path /var/lib/vz
+	content vztmpl,iso,backup
 
-lvmthin: local-lvm
-        thinpool data
-        vgname pve
-        content images,rootdir
+cifs: {{ main_nas_name }}
+	path {{ main_nas_path }}
+	server {{ main_nas_server }}
+	share {{ main_nas_share }}
+	content {{ main_nas_content }}
+	prune-backups keep-all=1
+	username {{ main_nas_username }}
 
-nfs: {{ nas2_nfs_name }}
-        export {{ nas2_nfs_export }}
-        path {{ nas2_nfs_path }}
-        server {{ nas2_nfs_server }}
-        content {{ nas2_nfs_content }}
-        prune-backups keep-all=1
+cifs: {{ nas2_name }}
+	path {{ nas2_path }}
+	server {{ nas2_server }}
+	share {{ nas2_share }}
+	content {{ nas2_content }}
+	prune-backups keep-all=1
+	username {{ nas2_username }}
 
-nfs: {{ backup_nfs_name }}
-        export {{ backup_nfs_export }}
-        path {{ backup_nfs_path }}
-        server {{ backup_nfs_server }}
-        content {{ backup_nfs_content }}
-        prune-backups keep-all=1
+cifs: {{ nas2_backup_name }}
+	path {{ nas2_backup_path }}
+	server {{ nas2_backup_server }}
+	share {{ nas2_backup_share }}
+	content {{ nas2_backup_content }}
+	prune-backups keep-all=1
+	username {{ nas2_backup_username }}
 
-lvm: {{ iscsi_nas_volume_name }}
-	vgname {{ iscsi_nas_vgname }}
+cifs: {{ backup_nas_name }}
+	path {{ backup_nas_path }}
+	server {{ backup_nas_server }}
+	share {{ backup_nas_share }}
+	content {{ backup_nas_content }}
+	prune-backups keep-all=1
+	username {{ backup_nas_username }}
+
+rbd: {{ ceph_pool_name }}
 	content rootdir,images
-	saferemove 0
-	shared 1
+	krbd 0
+	pool ceph-pool1

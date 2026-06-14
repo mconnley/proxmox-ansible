@@ -102,9 +102,21 @@
       ansible.builtin.include_role:
         name: 26_postfix_config
 
-    - name: Update system
+    - name: Reboot system
       ansible.builtin.include_role:
         name: 99_update_reboot
+
+    - name: Configure 5G NIC
+      ansible.builtin.include_role:
+        name: 27_configure_5g_nic
+
+    - name: Reboot system
+      ansible.builtin.include_role:
+        name: 99_update_reboot
+
+    - name: Reload interfaces
+      ansible.builtin.include_role:
+        name: 29_reload_interfaces
 
   handlers:
     - name: Update GRUB

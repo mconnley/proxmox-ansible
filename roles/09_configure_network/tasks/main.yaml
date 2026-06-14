@@ -29,6 +29,11 @@
   when: configure_network | default(false)
   register: interfaces_changed
 
+- name: Reload networking service
+  ansible.builtin.systemd:
+    name: networking
+    state: reloaded
+
 - name: Configure DNS servers
   ansible.builtin.copy:
     dest: /etc/resolv.conf
@@ -46,25 +51,6 @@
     state: present
     insertafter: EOF
   when: domain is defined and domain | length > 0
-
-- name: Configure ISCSI interface MAC addresses
-  ansible.builtin.template:
-    src: set-iscsi-iface-macs.service.j2
-    dest: /etc/systemd/system/set-iscsi-iface-macs.service
-    owner: root
-    group: root
-    mode: '0777'
-  when: iscsi_interface3_mac is defined and iscsi_interface4_mac is defined
-  register: iscsi_mac_service_changed
-
-- name: Enable set-iscsi-iface-macs service
-  ansible.builtin.systemd:
-    name: set-iscsi-iface-macs.service
-    enabled: true
-    state: started
-    daemon_reload: true
-  when: iscsi_interface3_mac is defined and iscsi_interface4_mac is defined
-  register: iscsi_mac_service_enabled
 
 - name: Restart hostname-related services
   ansible.builtin.systemd:

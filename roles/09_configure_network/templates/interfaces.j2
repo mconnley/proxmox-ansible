@@ -10,21 +10,6 @@ iface {{ cluster_interface_name }} inet static
 address {{ cluster_interface_cidr }}
 #Cluster
 
-auto {{ iscsi_interface1_name }}
-iface {{ iscsi_interface1_name }} inet static
-address {{ iscsi_interface1_cidr }}
-#ISCSI-A
-
-auto {{ iscsi_interface2_name }}
-iface {{ iscsi_interface2_name}} inet static
-address {{ iscsi_interface2_cidr }}
-#ISCSI-B
-
-auto {{ shared_stg_interface_name }}
-iface {{ shared_stg_interface_name }} inet static
-address {{ shared_stg_interface_cidr }}
-#SHARED-STG-1-NFS
-
 auto {{ bridge_interface_name }}
 iface {{ bridge_interface_name }} inet static
 address {{ bridge_interface_cidr }}
@@ -32,17 +17,18 @@ gateway {{ bridge_interface_gateway }}
 bridge-ports {{ primary_interface_name }}
 bridge-stp off
 bridge-fd 0
+#Bridge
 
-auto {{ iscsi_interface3_name }}
-iface {{ iscsi_interface3_name }} inet static
-address {{ iscsi_interface3_cidr }}
-vlan-raw-device {{ shared_stg_interface_name }}
-#ISCSI-C - shared
+auto {{ iscsi_interface1_name }}
+iface {{ iscsi_interface1_name }} inet static
+address {{ iscsi_interface1_ip }}/{{ iscsi_network_prefix }}
+# mtu 9000
+# post-up /usr/bin/logger -p debug -t ifup "Disabling scatter-gather offload for {{ iscsi_interface1_name }}" && /sbin/ethtool -K {{ iscsi_interface1_name }} sg off && /usr/bin/logger -p debug -t ifup "Disabled offload for {{ iscsi_interface1_name }}"
+#5G
 
-auto {{ iscsi_interface4_name }}
-iface {{ iscsi_interface4_name }} inet static
-address {{ iscsi_interface4_cidr }}
-vlan-raw-device {{ shared_stg_interface_name }}
-#ISCSI-D - shared
+auto {{ nfs_interface_name }}
+iface {{ nfs_interface_name }} inet static
+address {{ nfs_interface_cidr }}
+#NFS - shared
 
 source /etc/network/interfaces.d/*

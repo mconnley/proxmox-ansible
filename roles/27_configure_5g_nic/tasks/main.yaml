@@ -1,0 +1,15 @@
+- name: Copy post-update-nic-fix.sh from template
+  ansible.builtin.template:
+    src: post-update-nic-fix.sh.j2
+    dest: /root/post-update-nic-fix.sh
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Run post-update-nic-fix.sh script
+  ansible.builtin.shell: /root/post-update-nic-fix.sh
+  become: true
+  become_user: root
+  args:
+    chdir: /root
+  changed_when: false
